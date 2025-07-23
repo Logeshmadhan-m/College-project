@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome, {{ session.get('username') }}</h1>
+    <p class="text-gray-600">Here's what's happening on campus today.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-semibold mb-4 flex items-center">
+            <i class="fas fa-qrcode mr-2 text-indigo-600"></i> Scan QR Code
+        </h2>
+        <form id="qrForm" enctype="multipart/form-data">
+            <div class="flex flex-wrap items-center space-x-4 mb-4 gap-y-4">
+                <button type="button" id="chooseFile" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition" aria-label="Choose file for QR scanning">
+                    <i class="fas fa-file-upload mr-2"></i> Choose File
+                </button>
+                <input type="file" id="qrImage" name="qr_image" accept="image/*" class="hidden">
+                <button type="button" id="startCamera" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition" aria-label="Start camera for QR scanning">
+                    <i class="fas fa-video mr-2"></i> Start Camera
+                </button>
+                <button type="submit" id="scanButton" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition" aria-label="Scan QR code">
+                    <i class="fas fa-search mr-2"></i> Scan
+                </button>
+                <button type="button" id="captureButton" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition hidden" aria-label="Capture QR code from camera">
+                    <i class="fas fa-camera mr-2"></i> Capture
+                </button>
+                <button type="button" id="stopCameraButton" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition hidden" aria-label="Stop camera">
+                    <i class="fas fa-stop mr-2"></i> Stop Camera
+                </button>
+            </div>
+            <div id="cameraContainer" class="hidden">
+                <video id="video" class="w-full max-w-md rounded-lg" autoplay playsinline></video>
+                <canvas id="canvas" class="hidden"></canvas>
+            </div>
+        </form>
+        <div id="qrResult" class="mt-4 text-sm text-red-600 hidden" role="alert"></div>
+    </div>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow-md mb-8">
+    <h2 class="text-xl font-semibold mb-4 flex items-center">
+        <i class="fas fa-building mr-2 text-indigo-600"></i> All Locations
+    </h2>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for location in locations %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <i class="fas fa-building mr-2 text-indigo-600"></i>
+                            <div>
+                                <div class="font-medium text-gray-900">{{ location.name }}</div>
+                                <div class="text-sm text-gray-500">{{ location.description|truncate(30) }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ location.open_time }} - {{ location.close_time }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <a href="https://www.google.com/maps?q={{ location.latitude }},{{ location.longitude }}" 
+                           target="_blank" class="text-indigo-600 hover:text-indigo-900" title="Open in Google Maps">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-xl font-semibold mb-4 flex items-center">
+        <i class="fas fa-user-graduate mr-2 text-indigo-600"></i> All Faculties
+    </h2>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for faculty in faculties %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <i class="fas fa-user-graduate mr-2 text-indigo-600"></i>
+                            <div class="font-medium text-gray-900">{{ faculty.name }}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ faculty.department }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ faculty.year }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <a href="#" class="text-indigo-600 hover:text-indigo-900" title="View Details">
+                            <i class="fas fa-info-circle"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    let stream = null;
+
+    // Choose file button
+    document.getElementById('chooseFile').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('qrImage').click();
+    });
+
+    // Start camera with enhanced permission handling
+    document.getElementById('startCamera').addEventListener('click', async function() {
+        console.log('Start camera button clicked');
+        const qrResult = document.getElementById('qrResult');
+        qrResult.classList.remove('hidden');
+        qrResult.textContent = 'Initializing camera...';
+        qrResult.setAttribute('role', 'alert');
+
+        // Inform user about camera usage
+        if (!confirm('This feature requires camera access to scan QR codes. When prompted, please select "Allow" in the browser permission dialog. You can also upload an image if camera access is unavailable.')) {
+            qrResult.textContent = 'Camera access cancelled. Please use the "Choose File" option to upload an image.';
+            qrResult.classList.remove('hidden');
+            return;
+        }
+
+        // Stop any existing stream
+        stopCamera();
+
+        try {
+            // Check permission status if supported
+            if (navigator.permissions && navigator.permissions.query) {
+                console.log('Checking camera permission status...');
+                const permissionStatus = await navigator.permissions.query({ name: 'camera' });
+                if (permissionStatus.state === 'denied') {
+                    qrResult.textContent = 'Camera permission denied. Please enable camera access in your browser settings:\n' +
+                                          '- Chrome: Click the lock icon in the address bar > Site Settings > Camera > Allow.\n' +
+                                          '- Firefox: Click the camera icon in the address bar > Allow.\n' +
+                                          '- Safari: Settings > Websites > Camera > Allow.';
+                    qrResult.classList.remove('hidden');
+                    return;
+                }
+                permissionStatus.onchange = () => {
+                    if (permissionStatus.state === 'denied') {
+                        stopCamera();
+                        qrResult.textContent = 'Camera access was revoked. Please enable it in your browser settings.';
+                        qrResult.classList.remove('hidden');
+                    }
+                };
+            }
+
+            const video = document.getElementById('video');
+            const cameraContainer = document.getElementById('cameraContainer');
+            const scanButton = document.getElementById('scanButton');
+            const captureButton = document.getElementById('captureButton');
+            const stopCameraButton = document.getElementById('stopCameraButton');
+
+            // Request camera access
+            console.log('Requesting camera access...');
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { ideal: 'environment' } } // Fallback to any camera if 'environment' unavailable
+            });
+            console.log('Camera stream acquired:', stream);
+            video.srcObject = stream;
+            console.log('Video source set');
+            cameraContainer.classList.remove('hidden');
+            scanButton.classList.add('hidden');
+            captureButton.classList.remove('hidden');
+            stopCameraButton.classList.remove('hidden');
+            qrResult.classList.add('hidden');
+        } catch (error) {
+            console.error('Error accessing camera:', error);
+            let errorMessage = 'Error accessing camera';
+            if (error.name === 'NotAllowedError') {
+                errorMessage = 'Camera permission denied. Please allow camera access in your browser settings:\n' +
+                               '- Chrome: Click the lock icon in the address bar > Site Settings > Camera > Allow.\n' +
+                               '- Firefox: Click the camera icon in the address bar > Allow.\n' +
+                               '- Safari: Settings > Websites > Camera > Allow.\n' +
+                               'Alternatively, use the "Choose File" option to upload an image.';
+            } else if (error.name === 'NotFoundError') {
+                errorMessage = 'No camera found. Please ensure your device has a working camera or try uploading an image.';
+            } else if (error.name === 'NotReadableError') {
+                errorMessage = 'Camera is in use by another application. Please close other apps using the camera and try again.';
+            } else {
+                errorMessage = `Camera error: ${error.message}. Please try again or use the file upload option.`;
+            }
+            qrResult.textContent = errorMessage;
+            qrResult.classList.remove('hidden');
+        }
+    });
+
+    // Capture image from video
+    document.getElementById('captureButton').addEventListener('click', function() {
+        console.log('Capture button clicked');
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const qrResult = document.getElementById('qrResult');
+        qrResult.classList.add('hidden');
+
+        // Set canvas size to video dimensions
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Convert canvas to Blob
+        canvas.toBlob(function(blob) {
+            if (!blob) {
+                qrResult.textContent = 'Failed to capture image';
+                qrResult.classList.remove('hidden');
+                return;
+            }
+
+            // Create FormData with captured image
+            const formData = new FormData();
+            formData.append('qr_image', blob, 'capture.jpg');
+
+            // Send to /scan_qr
+            console.log('Sending captured image to /scan_qr');
+            fetch('{{ url_for("scan_qr") }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                stopCamera();
+                if (data.redirect && data.redirect !== '#') {
+                    console.log('Redirecting to:', data.redirect);
+                    window.location.href = data.redirect;
+                } else {
+                    qrResult.textContent = data.error || 'Invalid QR code data';
+                    qrResult.classList.remove('hidden');
+                }
+            })
+            .catch(error => {
+                stopCamera();
+                console.error('Error scanning QR code:', error);
+                qrResult.textContent = 'Error scanning QR code: ' + error.message;
+                qrResult.classList.remove('hidden');
+            });
+        }, 'image/jpeg');
+    });
+
+    // Handle file upload and scan
+    document.getElementById('qrForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('QR form submitted');
+        const qrResult = document.getElementById('qrResult');
+        qrResult.classList.add('hidden');
+
+        const formData = new FormData();
+        const fileInput = document.getElementById('qrImage');
+        if (!fileInput.files[0]) {
+            qrResult.textContent = 'Please select an image';
+            qrResult.classList.remove('hidden');
+            return;
+        }
+        formData.append('qr_image', fileInput.files[0]);
+
+        console.log('Sending file to /scan_qr');
+        fetch('{{ url_for("scan_qr") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirect && data.redirect !== '#') {
+                console.log('Redirecting to:', data.redirect);
+                window.location.href = data.redirect;
+            } else {
+                qrResult.textContent = data.error || 'Invalid QR code data';
+                qrResult.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Error scanning QR code:', error);
+            qrResult.textContent = 'Error scanning QR code: ' + error.message;
+            qrResult.classList.remove('hidden');
+        });
+    });
+
+    // Stop camera button
+    document.getElementById('stopCameraButton').addEventListener('click', stopCamera);
+
+    // Stop camera stream
+    function stopCamera() {
+        console.log('Stopping camera');
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+            console.log('Camera stream stopped');
+        }
+        const video = document.getElementById('video');
+        const cameraContainer = document.getElementById('cameraContainer');
+        const scanButton = document.getElementById('scanButton');
+        const captureButton = document.getElementById('captureButton');
+        const stopCameraButton = document.getElementById('stopCameraButton');
+        video.srcObject = null;
+        cameraContainer.classList.add('hidden');
+        scanButton.classList.remove('hidden');
+        captureButton.classList.add('hidden');
+        stopCameraButton.classList.add('hidden');
+    }
+
+    // Stop camera when page is unloaded
+    window.addEventListener('beforeunload', stopCamera);
+</script>
+{% endblock %}
+{% endblock %}

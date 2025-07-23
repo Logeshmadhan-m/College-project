@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero bg-indigo-50 rounded-lg p-8 md:p-12 my-8">
+    <div class="flex flex-col md:flex-row items-center">
+        <div class="md:w-1/2 mb-8 md:mb-0">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Navigate Your Campus with Ease</h1>
+            <p class="text-lg text-gray-600 mb-6">Find buildings, facilities, and points of interest quickly using our interactive map and QR code scanning system.</p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="{{ url_for('map_page') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg text-center font-medium transition">
+                    <i class="fas fa-map-marked-alt mr-2"></i> Explore Map
+                </a>
+                {% if 'user_id' not in session %}
+                <a href="{{ url_for('register') }}" class="bg-white hover:bg-gray-100 text-indigo-600 px-6 py-3 rounded-lg border border-indigo-600 text-center font-medium transition">
+                    <i class="fas fa-user-plus mr-2"></i> Get Started
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="md:w-1/2">
+            <img src="https://illustrations.popsy.co/amber/digital-nomad.svg" alt="Campus Navigation" class="w-full h-auto max-w-md mx-auto">
+        </div>
+    </div>
+</div>
+
+<div class="features grid grid-cols-1 md:grid-cols-3 gap-8 my-12">
+    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+        <div class="text-indigo-600 text-4xl mb-4">
+            <i class="fas fa-qrcode"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">QR Code Scanning</h3>
+        <p class="text-gray-600">Scan QR codes around campus to instantly get directions to your destination.</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+        <div class="text-indigo-600 text-4xl mb-4">
+            <i class="fas fa-map-marked-alt"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Interactive Map</h3>
+        <p class="text-gray-600">Explore our detailed campus map with all buildings and facilities marked.</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+        <div class="text-indigo-600 text-4xl mb-4">
+            <i class="fas fa-clock"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Real-Time Info</h3>
+        <p class="text-gray-600">Get up-to-date information on facility opening hours and availability.</p>
+    </div>
+</div>
+{% endblock %}

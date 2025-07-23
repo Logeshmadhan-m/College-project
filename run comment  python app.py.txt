@@ -1,0 +1,3 @@
+run comment >> python app.py 
+
+admin login >> admin / admin123

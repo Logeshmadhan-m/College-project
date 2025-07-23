@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Campus Map{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Campus Map</h1>
+        <p class="text-gray-600">Navigate to campus locations using the interactive map below.</p>
+    </div>
+
+    {% if request.args.get('destination') %}
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h2 class="text-xl font-semibold mb-4 flex items-center">
+            <i class="fas fa-map-marker-alt mr-2 text-indigo-600"></i>
+            Destination: {{ request.args.get('destination') }}
+        </h2>
+        <div id="location-info" class="text-gray-700 mb-4">
+            <p>Loading coordinates...</p>
+        </div>
+        <a id="google-maps-link" href="#" target="_blank" 
+           class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition inline-flex items-center">
+            <i class="fas fa-external-link-alt mr-2"></i> Open in Google Maps
+        </a>
+    </div>
+    {% else %}
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <p class="text-gray-600">Scan a QR code or select a location from the dashboard to view a specific destination.</p>
+    </div>
+    {% endif %}
+
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-semibold mb-4 flex items-center">
+            <i class="fas fa-map mr-2 text-indigo-600"></i> Map View
+        </h2>
+        <div class="w-full h-[500px]">
+            <iframe 
+                class="w-full h-full rounded-lg" 
+                frameborder="0" style="border:0" 
+                src="https://www.google.com/maps/d/embed?mid=1M8610IyV0Jy-lB5bU8MrfqK65hH20AI&ll=11.104665060731401%2C79.694079&z=17" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+{% if request.args.get('destination') %}
+<script>
+    fetch('{{ url_for("navigate", destination=request.args.get("destination")) }}')
+        .then(response => response.json())
+        .then(data => {
+            const infoDiv = document.getElementById('location-info');
+            const link = document.getElementById('google-maps-link');
+            if (data.error) {
+                infoDiv.innerHTML = `<p class="text-red-600">${data.error}</p>`;
+                link.classList.add('hidden');
+            } else {
+                infoDiv.innerHTML = `
+                    <p><strong>Latitude:</strong> ${data.lat}</p>
+                    <p><strong>Longitude:</strong> ${data.lng}</p>
+                `;
+                link.href = data.google_map_link;
+            }
+        })
+        .catch(error => {
+            document.getElementById('location-info').innerHTML = 
+                `<p class="text-red-600">Error loading location data: ${error.message}</p>`;
+            document.getElementById('google-maps-link').classList.add('hidden');
+        });
+</script>
+{% endif %}
+{% endblock %}
+{% endblock %}

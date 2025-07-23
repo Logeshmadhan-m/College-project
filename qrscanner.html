@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Scan QR Code{% endblock %}
+
+{% block content %}
+    <h2>📷 Scan QR Code</h2>
+
+    <!-- Live Camera Scanner -->
+    <video id="video" autoplay></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <button onclick="captureQR()">Scan QR Code</button>
+
+    <!-- Upload QR Image -->
+    <form id="qrForm" action="{{ url_for('scan_qr') }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="qr_image" accept="image/*">
+        <button type="submit">Upload QR Image</button>
+    </form>
+
+    <script src="{{ url_for('static', filename='qr-scanner.js') }}"></script>
+{% endblock %}

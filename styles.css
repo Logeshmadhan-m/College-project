@@ -1,0 +1,129 @@
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Headings */
+h1 {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: fadeIn 1s ease-in-out;
+}
+
+h2 {
+    font-size: 20px;
+    margin-top: 10px;
+    text-align: center;
+    animation: slideIn 0.5s ease-in-out;
+}
+
+/* Glassmorphism Card */
+.container {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+}
+
+/* Buttons */
+button {
+    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    color: white;
+    font-size: 16px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    margin: 10px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0px 5px 15px rgba(255, 69, 96, 0.4);
+    text-transform: uppercase;
+    width: 100%;
+    max-width: 250px;
+}
+
+button:hover {
+    background: linear-gradient(45deg, #ff4b2b, #ff416c);
+    transform: translateY(-3px);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+/* QR Scanner Video */
+video {
+    width: 100%;
+    max-width: 400px;
+    border: 3px solid #00c6ff;
+    border-radius: 12px;
+    margin-top: 15px;
+    animation: popIn 0.8s ease-in-out;
+}
+
+/* Status Indicators */
+.status {
+    font-weight: bold;
+    font-size: 18px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: inline-block;
+    text-transform: uppercase;
+}
+
+.open {
+    color: white;
+    background: linear-gradient(45deg, #00c851, #007e33);
+    animation: pulse 1.5s infinite;
+}
+
+.closed {
+    color: white;
+    background: linear-gradient(45deg, #ff4444, #cc0000);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Footer */
+footer {
+    margin-top: 20px;
+    font-size: 14px;
+    text-align: center;
+    color: #ddd;
+}
